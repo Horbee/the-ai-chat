@@ -81,6 +81,10 @@ io.use((socket, next) => {
   });
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "UP" });
+});
+
 server.listen(port, () => {
   console.log("server running at port: ", port);
 });
