@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: the-ai-chat-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: the-ai-chat-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: the-ai-chat-pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: the-ai-chat-mailhog
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP
+
+volumes:
+  postgres_data:

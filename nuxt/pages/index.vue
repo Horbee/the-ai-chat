@@ -1,10 +1,14 @@
-<script setup>
-import MessageList from "./components/MessageList.vue";
-import Languages from "./langs.json";
-
-import { computed, ref, watch } from "vue";
+<script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useSocket } from "./stores/socket";
+
+import Languages from "@/langs.json";
+import { useSocket } from "@/stores/socket";
+
+const { signOut } = useAuth();
+
+useHead({ title: "The AI Chat" });
+
+definePageMeta({ middleware: ["auth"] });
 
 const socketStore = useSocket();
 const { socket } = socketStore;
@@ -38,6 +42,7 @@ const btnEnabled = computed(
 
 <template>
   <h1>Hello World</h1>
+  <button @click="signOut()">Singout</button>
 
   <form @submit.prevent="sendMessage">
     <div>
