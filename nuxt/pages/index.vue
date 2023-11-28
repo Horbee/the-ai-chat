@@ -23,7 +23,6 @@ const { socket } = socketStore;
 const { connected } = storeToRefs(socketStore);
 
 const currentMessage = ref("");
-const userName = ref("");
 const preferredLanguage = ref("");
 
 const sendMessage = () => {
@@ -43,6 +42,8 @@ watch(preferredLanguage, (lang) => {
   socket.emit("lang_selected", lang);
 });
 
+const userName = computed(() => sessionData.value?.user.name || "");
+
 const btnEnabled = computed(
   () => currentMessage.value && userName.value && connected.value
 );
@@ -54,35 +55,41 @@ const btnEnabled = computed(
     @update:is-open="isUsernameModalOpen = $event"
   />
 
-  <h1>Hello World: {{ sessionData?.user.name }}</h1>
-  <button @click="signOut()">Singout</button>
-
-  <form @submit.prevent="sendMessage">
-    <div>
-      <label
-        >Your Name:
-        <input type="text" v-model="userName" />
-      </label>
-
-      <label
-        >Preferred Language:
-        <select v-model="preferredLanguage">
-          <option disabled value="">Please select one</option>
-          <option v-for="lang in Languages" :value="lang.code">
-            {{ lang.name }}
-          </option>
-        </select>
-      </label>
+  <v-container class="d-flex flex-column h-screen">
+    <div class="d-flex">
+      <h1>Hello {{ sessionData?.user.name }}!</h1>
+      <v-btn icon="$edit" variant="plain"></v-btn>
     </div>
+    <v-btn
+      variant="outlined"
+      color="orange"
+      @click="signOut()"
+      class="align-self-start"
+      >Signout</v-btn
+    >
 
-    <div>
-      <label
-        >Your message:
-        <input type="text" v-model="currentMessage" />
-      </label>
-    </div>
-    <button type="submit" :disabled="!btnEnabled">Send</button>
-  </form>
+    <v-chip-group selected-class="text-primary" :mandatory="true">
+      <v-chip
+        v-for="lang in Languages"
+        :key="lang.code"
+        @click="preferredLanguage = lang.code"
+      >
+        {{ lang.name }}
+      </v-chip>
+    </v-chip-group>
 
-  <MessageList />
+    <v-form @submit.prevent="sendMessage">
+      <div class="d-flex">
+        <v-text-field
+          label="Your message:"
+          v-model="currentMessage"
+          class="mr-2"
+        ></v-text-field>
+
+        <v-btn type="submit" class="mt-2" :disabled="!btnEnabled">Send</v-btn>
+      </div>
+    </v-form>
+
+    <MessageList />
+  </v-container>
 </template>

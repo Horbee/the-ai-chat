@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <ul>
-      <li v-for="item in messages">
-        <span>{{ item.user }}: </span>
-        <span>{{ item.message.translations[0].text }}</span>
-      </li>
-    </ul>
-  </div>
+  <v-list lines="two" class="flex-grow-1">
+    <v-list-item
+      v-for="item in messages"
+      :key="JSON.stringify(item.message)"
+      :title="item.user"
+      :subtitle="item.message.translations[0].text"
+    ></v-list-item>
+  </v-list>
 </template>
 
 <script setup lang="ts">
