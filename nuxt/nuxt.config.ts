@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   modules: [
     "@sidebase/nuxt-auth",
     "@pinia/nuxt",
+    "@vueuse/nuxt",
     (_options, nuxt) => {
       nuxt.hooks.hook("vite:extendConfig", (config) => {
         // @ts-expect-error

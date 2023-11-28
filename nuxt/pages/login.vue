@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import { Validations } from "@/utils/validation";
 import type { SubmitEventPromise } from "vuetify";
 
 definePageMeta({

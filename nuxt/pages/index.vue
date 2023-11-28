@@ -4,11 +4,19 @@ import { storeToRefs } from "pinia";
 import Languages from "@/langs.json";
 import { useSocket } from "@/stores/socket";
 
-const { signOut } = useAuth();
+const { signOut, data: sessionData } = useAuth();
 
 useHead({ title: "The AI Chat" });
 
 definePageMeta({ middleware: ["auth"] });
+
+const isUsernameModalOpen = ref(false);
+
+onMounted(() => {
+  if (!sessionData.value?.user.name) {
+    isUsernameModalOpen.value = true;
+  }
+});
 
 const socketStore = useSocket();
 const { socket } = socketStore;
@@ -41,7 +49,12 @@ const btnEnabled = computed(
 </script>
 
 <template>
-  <h1>Hello World</h1>
+  <UsernameDialog
+    :is-open="isUsernameModalOpen"
+    @update:is-open="isUsernameModalOpen = $event"
+  />
+
+  <h1>Hello World: {{ sessionData?.user.name }}</h1>
   <button @click="signOut()">Singout</button>
 
   <form @submit.prevent="sendMessage">
