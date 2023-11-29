@@ -3,49 +3,50 @@ import { storeToRefs } from "pinia";
 
 import Languages from "@/langs.json";
 import { useSocket } from "@/stores/socket";
-
-const { signOut, data: sessionData } = useAuth();
+import { useMessages } from "@/stores/message";
 
 useHead({ title: "The AI Chat" });
-
 definePageMeta({ middleware: ["auth"] });
 
-const isUsernameModalOpen = ref(false);
-
-onMounted(() => {
-  if (!sessionData.value?.user.name) {
-    isUsernameModalOpen.value = true;
-  }
-});
-
+const { signOut, data: sessionData } = useAuth();
+const { $dispose, emitMessage } = useMessages();
 const socketStore = useSocket();
 const { socket } = socketStore;
 const { connected } = storeToRefs(socketStore);
 
 const currentMessage = ref("");
 const preferredLanguage = ref("");
+const isUsernameModalOpen = ref(false);
+
+const userName = computed(() => sessionData.value?.user.name || "");
+const btnEnabled = computed(
+  () => currentMessage.value && userName.value && connected.value
+);
+
+onMounted(() => {
+  if (!userName) isUsernameModalOpen.value = true;
+});
+
+onUnmounted(() => $dispose());
 
 const sendMessage = () => {
   if (!currentMessage.value || !userName.value || !connected.value) return;
-  console.log("send");
 
-  socket.emit("new_message", {
-    message: currentMessage.value,
-    user: userName.value,
-    lang: preferredLanguage.value,
-  });
+  emitMessage(currentMessage.value, userName.value);
 
   currentMessage.value = "";
 };
 
 watch(preferredLanguage, (lang) => {
-  socket.emit("lang_selected", lang);
+  socket.emit("language:selected", lang);
 });
 
-const userName = computed(() => sessionData.value?.user.name || "");
-
-const btnEnabled = computed(
-  () => currentMessage.value && userName.value && connected.value
+watch(
+  userName,
+  (userName) => {
+    if (userName) socket.emit("username:update", userName);
+  },
+  { immediate: true }
 );
 </script>
 
@@ -91,5 +92,6 @@ const btnEnabled = computed(
     </v-form>
 
     <MessageList />
+    <OnlineUserList />
   </v-container>
 </template>

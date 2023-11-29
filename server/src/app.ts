@@ -6,12 +6,16 @@ import { corsConfig } from "./config/cors-config";
 import { env } from "./config/env-config";
 import { newMessage } from "./socketio/new-message";
 import { langSelected } from "./socketio/lang-selected";
+import { joinRoom } from "./socketio/join-room";
+import { emitOnlineUserList } from "./socketio/online-users";
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: corsConfig });
 
 app.use(cors(corsConfig));
+
+const onlineUsers: { [key: string]: { name?: string } } = {};
 
 io.use((socket, next) => {
   if (socket.handshake.query && socket.handshake.query.token) {
@@ -32,14 +36,22 @@ io.use((socket, next) => {
   }
 }).on("connection", (socket) => {
   console.log(`User connected, id: ${socket.id}`);
-  socket.join("EN");
+  joinRoom(socket, "EN");
+  onlineUsers[socket.id] = { name: undefined };
 
-  socket.on("new_message", newMessage(io));
+  socket.on("username:update", (user) => {
+    onlineUsers[socket.id] = { name: user };
+    emitOnlineUserList(io, onlineUsers);
+  });
 
-  socket.on("lang_selected", langSelected(socket));
+  socket.on("message:send", newMessage(io));
+
+  socket.on("language:selected", langSelected(socket));
 
   socket.on("disconnect", () => {
     console.log("User disconnected.");
+    delete onlineUsers[socket.id];
+    emitOnlineUserList(io, onlineUsers);
   });
 });
 

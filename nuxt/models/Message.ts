@@ -1,8 +1,8 @@
+// same as IncomingMessageArgs
+
 export interface Message {
-  user: string;
-  message: {
-    translations: Array<{
-      text: string;
-    }>;
-  };
+  username: string;
+  targetLang: string;
+  originalText: string;
+  translations: Array<{ text: string }>;
 }

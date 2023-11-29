@@ -7,6 +7,7 @@ dotenv.config();
 
 const variables = {
   PORT: process.env.PORT || 8888,
+  CORS_ORIGIN: process.env.CORS_ORIGIN,
   DEEPL_KEY: process.env.DEEPL_KEY,
   DEEPL_API: process.env.DEEPL_API || "https://api-free.deepl.com/v2/translate",
 };
@@ -16,6 +17,7 @@ const environmentSchema = z.object({
     (port) => parseInt(z.string().parse(port), 10),
     z.number()
   ),
+  CORS_ORIGIN: z.string().min(1),
   DEEPL_KEY: z.string().min(1),
   DEEPL_API: z.string(),
 });

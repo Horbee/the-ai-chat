@@ -1,15 +1,16 @@
 import { getTranslation } from "../deepl/get-translation";
 import { Server } from "socket.io";
+import Languages from "../langs.json";
 
 import type { TranslationResponse } from "../deepl/get-translation";
 
 interface NewMessageArgs {
-  user: string;
+  username: string;
   message: string;
 }
 
 interface IncomingMessageArgs {
-  user: string;
+  username: string;
   targetLang: string;
   originalText: string;
   translations: TranslationResponse["translations"];
@@ -17,21 +18,23 @@ interface IncomingMessageArgs {
 
 export const newMessage =
   (io: Server) =>
-  async ({ user, message }: NewMessageArgs) => {
-    console.log("new_message", { user, message });
+  async ({ username, message }: NewMessageArgs) => {
+    console.log("message:send", { username, message });
 
     const rooms = io.of("/").adapter.rooms;
-    const langs = [...rooms.keys()];
+    const langs = [...rooms.keys()].filter((r) =>
+      Languages.some((l) => l.code === r)
+    );
 
-    console.log({ langs });
+    console.log("Langs:", langs);
 
     const translations = await Promise.all(
       langs.map((targetLang) => getTranslation(targetLang, message))
     );
 
     translations.forEach(({ targetLang, originalText, translations }) => {
-      io.to(targetLang).emit("incoming_message", {
-        user,
+      io.to(targetLang).emit("message:incoming", {
+        username,
         targetLang,
         originalText,
         translations,
