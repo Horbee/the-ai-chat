@@ -3,23 +3,36 @@ import { defineStore } from "pinia";
 import type { Message } from "@/models/Message";
 
 export const useMessages = defineStore("messageStore", () => {
-  const { socket } = useSocket();
+  const { socket } = storeToRefs(useSocket());
 
   const messages = ref<Message[]>([]);
 
-  socket.on("message:incoming", (message: Message) => {
+  const incomingMessage = (message: Message) => {
     console.log(message);
     messages.value.push(message);
-  });
-
-  const emitMessage = (message: string, username: string) => {
-    socket.emit("message:send", { message, username });
   };
 
-  const $dispose = () => {
-    console.log("calling dispose");
-    socket.off("message:incoming");
+  const sendMessage = (message: string, username: string) => {
+    socket.value?.emit("message:send", { message, username });
   };
 
-  return { messages, emitMessage, $dispose };
+  const init = () => {
+    socket.value?.on("message:incoming", incomingMessage);
+  };
+
+  const cleanup = () => {
+    console.log("Cleaning up messages store");
+    socket.value?.off("message:incoming", incomingMessage);
+  };
+
+  watch(
+    socket,
+    (newSocket, oldSocket, onCleanup) => {
+      onCleanup(cleanup);
+      init();
+    },
+    { immediate: true }
+  );
+
+  return { messages, sendMessage };
 });

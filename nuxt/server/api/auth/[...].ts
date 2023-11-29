@@ -4,6 +4,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { sendVerificationRequest } from "../../verification-request";
 
 import EmailProvider from "next-auth/providers/email";
+import jwt from "jsonwebtoken";
 
 import type { NextAuthOptions } from "next-auth";
 
@@ -16,6 +17,7 @@ const authOptions: NextAuthOptions = {
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
+        session.user.token = signJWTForSocketIO(user.id);
       }
       return session;
     },
@@ -31,6 +33,12 @@ const authOptions: NextAuthOptions = {
       sendVerificationRequest,
     }),
   ],
+};
+
+const signJWTForSocketIO = (userId: string) => {
+  return jwt.sign({ uid: userId }, process.env.NUXT_SECRET || "", {
+    expiresIn: "1h",
+  });
 };
 
 export default NuxtAuthHandler(authOptions);

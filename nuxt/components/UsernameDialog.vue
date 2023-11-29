@@ -29,11 +29,15 @@
 <script setup lang="ts">
 import type { SubmitEventPromise } from "vuetify";
 
-const props = defineProps<{
-  isOpen: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    username?: string;
+  }>(),
+  { isOpen: false, username: "" }
+);
 
-const username = ref("");
+const username = ref(props.username);
 
 const { getSession } = useAuth();
 

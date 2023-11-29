@@ -9,10 +9,9 @@ useHead({ title: "The AI Chat" });
 definePageMeta({ middleware: ["auth"] });
 
 const { signOut, data: sessionData } = useAuth();
-const { $dispose, emitMessage } = useMessages();
+const messagesStore = useMessages();
 const socketStore = useSocket();
-const { socket } = socketStore;
-const { connected } = storeToRefs(socketStore);
+const { connected, socket } = storeToRefs(socketStore);
 
 const currentMessage = ref("");
 const preferredLanguage = ref("");
@@ -24,27 +23,25 @@ const btnEnabled = computed(
 );
 
 onMounted(() => {
-  if (!userName) isUsernameModalOpen.value = true;
+  if (!userName.value) isUsernameModalOpen.value = true;
 });
-
-onUnmounted(() => $dispose());
 
 const sendMessage = () => {
   if (!currentMessage.value || !userName.value || !connected.value) return;
 
-  emitMessage(currentMessage.value, userName.value);
+  messagesStore.sendMessage(currentMessage.value, userName.value);
 
   currentMessage.value = "";
 };
 
 watch(preferredLanguage, (lang) => {
-  socket.emit("language:selected", lang);
+  socket.value?.emit("language:selected", lang);
 });
 
 watch(
-  userName,
-  (userName) => {
-    if (userName) socket.emit("username:update", userName);
+  [userName, socket],
+  ([userName, socket]) => {
+    if (userName) socket?.emit("username:update", userName);
   },
   { immediate: true }
 );
@@ -54,12 +51,17 @@ watch(
   <UsernameDialog
     :is-open="isUsernameModalOpen"
     @update:is-open="isUsernameModalOpen = $event"
+    :username="userName"
   />
 
   <v-container class="d-flex flex-column h-screen">
     <div class="d-flex">
-      <h1>Hello {{ sessionData?.user.name }}!</h1>
-      <v-btn icon="$edit" variant="plain"></v-btn>
+      <h1>Hello {{ userName }}!</h1>
+      <v-btn
+        icon="$edit"
+        variant="plain"
+        @click="isUsernameModalOpen = true"
+      ></v-btn>
     </div>
     <v-btn
       variant="outlined"

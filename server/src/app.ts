@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import jwt from "jsonwebtoken";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { corsConfig } from "./config/cors-config";
@@ -18,19 +19,14 @@ app.use(cors(corsConfig));
 const onlineUsers: { [key: string]: { name?: string } } = {};
 
 io.use((socket, next) => {
-  if (socket.handshake.query && socket.handshake.query.token) {
-    // jwt.verify(
-    //   socket.handshake.query.token,
-    //   "SECRET_KEY",
-    //   function (err, decoded) {
-    //     if (err) return next(new Error("Authentication error"));
-    //     socket.decoded = decoded;
-    //     next();
-    //   }
-    // );
-    const token = socket.handshake.query.token;
-    if (token === "test token") next();
-    else next(new Error("Authentication error"));
+  const token = socket.handshake.auth?.token;
+
+  if (token) {
+    jwt.verify(token, env.JWT_SECRET, (err: any, decoded: any) => {
+      if (err) return next(new Error("Authentication error"));
+      // socket.decoded = decoded;
+      next();
+    });
   } else {
     next(new Error("Authentication error"));
   }

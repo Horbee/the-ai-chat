@@ -1,22 +1,43 @@
 import { defineStore } from "pinia";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+
+interface State {
+  connected: boolean;
+  socket: Socket | null;
+}
 
 export const useSocket = defineStore("socketStore", () => {
   const runtimeConfig = useRuntimeConfig();
 
-  const connected = ref(false);
-
-  const socket = io(runtimeConfig.public.serverUrl, {
-    query: { token: "test token" },
+  const state = reactive<State>({
+    connected: false,
+    socket: null,
   });
 
-  socket.on("connect", () => {
-    connected.value = true;
-  });
+  const onConnected = () => (state.connected = true);
+  const onDisconnected = () => (state.connected = false);
 
-  socket.on("disconnect", () => {
-    connected.value = false;
-  });
+  const actions = {
+    init: (token: string) => {
+      console.log("initialize socket connection with token:", token);
 
-  return { socket, connected };
+      state.socket = io(runtimeConfig.public.serverUrl, {
+        auth: { token },
+      });
+
+      state.socket.on("connect", onConnected);
+      state.socket.on("disconnect", onDisconnected);
+    },
+
+    cleanup: () => {
+      console.log("Cleanup socket connection");
+
+      state.socket?.off("connect", onConnected);
+      state.socket?.off("disconnect", onDisconnected);
+
+      state.socket?.disconnect();
+    },
+  };
+
+  return { ...toRefs(state), ...actions };
 });

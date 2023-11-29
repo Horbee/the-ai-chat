@@ -10,6 +10,7 @@ const variables = {
   CORS_ORIGIN: process.env.CORS_ORIGIN,
   DEEPL_KEY: process.env.DEEPL_KEY,
   DEEPL_API: process.env.DEEPL_API || "https://api-free.deepl.com/v2/translate",
+  JWT_SECRET: process.env.JWT_SECRET,
 };
 
 const environmentSchema = z.object({
@@ -20,6 +21,7 @@ const environmentSchema = z.object({
   CORS_ORIGIN: z.string().min(1),
   DEEPL_KEY: z.string().min(1),
   DEEPL_API: z.string(),
+  JWT_SECRET: z.string().min(1),
 });
 
 const _variables = environmentSchema.safeParse(variables);
