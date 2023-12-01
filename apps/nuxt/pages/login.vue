@@ -5,6 +5,7 @@
       class="text-center mx-auto px-4 py-4 mt-6"
       elevation="2"
     >
+      <!-- E-Mail successfully sent for log in -->
       <div v-if="formState.success">
         <h2 class="text-h4 font-weight-black text-orange">Success!</h2>
 
@@ -13,11 +14,12 @@
           email.
         </p>
 
-        <v-btn variant="text" color="orange" @click="formState.success = false"
+        <v-btn variant="text" color="orange" @click="resetFormState"
           >Go back to Login</v-btn
         >
       </div>
 
+      <!-- Login form -->
       <v-form v-else @submit.prevent="handleSubmit" validate-on="blur">
         <h2 class="mb-4 text-h4 text-orange">Login to the AI Chat</h2>
         <v-text-field
@@ -32,6 +34,14 @@
 
         <v-btn type="submit" color="orange">Login</v-btn>
       </v-form>
+
+      <!-- Error alert -->
+      <v-alert
+        v-if="formState.authError"
+        class="mt-3"
+        text="An unexpected error occured during authentication. Please try again later."
+        type="error"
+      ></v-alert>
     </v-sheet>
   </v-container>
 </template>
@@ -49,9 +59,17 @@ const { signIn } = useAuth();
 const formState = reactive({
   email: "",
   success: false,
+  authError: false,
 });
 
+const resetFormState = () => {
+  formState.email = "";
+  formState.success = false;
+  formState.authError = false;
+};
+
 const handleSubmit = async (event: SubmitEventPromise) => {
+  formState.authError = false;
   const results = await event;
 
   if (!results.valid) return;
@@ -62,6 +80,7 @@ const handleSubmit = async (event: SubmitEventPromise) => {
     formState.email = "";
   } catch (error) {
     console.error("Auth error:", error);
+    formState.authError = true;
   }
 };
 </script>

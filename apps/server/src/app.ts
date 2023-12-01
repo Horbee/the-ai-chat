@@ -9,6 +9,7 @@ import { newMessage } from "./socketio/new-message";
 import { langSelected } from "./socketio/lang-selected";
 import { joinRoom } from "./socketio/join-room";
 import { emitOnlineUserList } from "./socketio/online-users";
+import Languages from "./langs.json";
 
 const app = express();
 const server = createServer(app);
@@ -55,6 +56,10 @@ const port = env.PORT;
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "UP" });
+});
+
+app.get("/languages", (req, res) => {
+  res.status(200).json(Languages);
 });
 
 server.listen(port, () => {

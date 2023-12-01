@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-
-import Languages from "@/langs.json";
 import { useSocket } from "@/stores/socket";
 import { useMessages } from "@/stores/message";
 
@@ -14,7 +12,6 @@ const socketStore = useSocket();
 const { connected, socket } = storeToRefs(socketStore);
 
 const currentMessage = ref("");
-const preferredLanguage = ref("");
 const isUsernameModalOpen = ref(false);
 
 const userName = computed(() => sessionData.value?.user.name || "");
@@ -34,14 +31,22 @@ const sendMessage = () => {
   currentMessage.value = "";
 };
 
-watch(preferredLanguage, (lang) => {
-  socket.value?.emit("language:selected", lang);
-});
-
 watch(
   [userName, socket],
   ([userName, socket]) => {
     if (userName) socket?.emit("username:update", userName);
+  },
+  { immediate: true }
+);
+
+const token = computed(() => sessionData.value?.user.token || "");
+
+watch(
+  token,
+  (newToken, oldToken, onCleanup) => {
+    onCleanup(socketStore.cleanup);
+
+    socketStore.init(newToken);
   },
   { immediate: true }
 );
@@ -71,15 +76,7 @@ watch(
       >Signout</v-btn
     >
 
-    <v-chip-group selected-class="text-primary" :mandatory="true">
-      <v-chip
-        v-for="lang in Languages"
-        :key="lang.code"
-        @click="preferredLanguage = lang.code"
-      >
-        {{ lang.name }}
-      </v-chip>
-    </v-chip-group>
+    <PreferredLanguageSelector />
 
     <v-form @submit.prevent="sendMessage">
       <div class="d-flex">
