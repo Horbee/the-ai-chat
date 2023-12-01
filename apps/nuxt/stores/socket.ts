@@ -19,7 +19,8 @@ export const useSocket = defineStore("socketStore", () => {
 
   const actions = {
     init: (token: string) => {
-      console.log("initialize socket connection with token:", token);
+      // console.log("initialize socket connection with token:", token);
+      console.log("initialize socket connection");
 
       state.socket = io(runtimeConfig.public.serverUrl, {
         auth: { token },

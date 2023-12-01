@@ -17,6 +17,7 @@ export const useMessages = defineStore("messageStore", () => {
   };
 
   const init = () => {
+    console.log("Init messages store");
     socket.value?.on("message:incoming", incomingMessage);
   };
 
