@@ -19,7 +19,7 @@ docker compose up -d
 pnpm install
 
 // generate .env files
-./environment-config.ts --DEEPL_KEY=<your-deepl-key>
+./packages/scripts/environment-config.ts --DEEPL_KEY=<your-deepl-key>
 
 // Apply db migrations in the Nuxt app
 pnpm --filter=@repo/nuxt migrate
