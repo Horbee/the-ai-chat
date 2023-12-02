@@ -11,10 +11,10 @@
 </template>
 
 <script setup lang="ts">
-import type { LanguageModel } from "@/models/Language";
+import type { Language } from "@repo/types";
 
 const runtimeConfig = useRuntimeConfig();
-const { data: Languages } = await useFetch<LanguageModel[]>(
+const { data: Languages } = await useFetch<Language[]>(
   `${runtimeConfig.public.serverUrl}/languages`
 );
 

@@ -1,4 +1,4 @@
-export interface LanguageModel {
+export interface Language {
   code: string;
   name: string;
 }

@@ -3,13 +3,15 @@ import dotenv from "dotenv";
 import { z } from "zod";
 import { formatErrors } from "../utils/zod-format";
 
+import type { ServerEnvironment } from "@repo/types";
+
 dotenv.config();
 
 const variables = {
-  PORT: process.env.PORT || 8888,
+  PORT: process.env.PORT,
   CORS_ORIGIN: process.env.CORS_ORIGIN,
   DEEPL_KEY: process.env.DEEPL_KEY,
-  DEEPL_API: process.env.DEEPL_API || "https://api-free.deepl.com/v2/translate",
+  DEEPL_API: process.env.DEEPL_API,
   JWT_SECRET: process.env.JWT_SECRET,
 };
 
@@ -34,4 +36,4 @@ if (!_variables.success) {
   throw new Error("Invalid environment variables");
 }
 
-export const env = _variables.data;
+export const env = _variables.data as ServerEnvironment;

@@ -20,7 +20,8 @@
     "next-auth": "4.21.1",
     "nodemailer": "^6.9.7",
     "pinia": "^2.1.7",
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.7.2",
+    "@repo/types": "workspace:*"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",

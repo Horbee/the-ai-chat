@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import type { Message } from "@/models/Message";
+import type { Message } from "@repo/types";
 
 export const useMessages = defineStore("messageStore", () => {
   const { socket } = storeToRefs(useSocket());

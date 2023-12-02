@@ -1,11 +1,16 @@
-#!/usr/bin/env -S pnpm exec ts-node
+#!/usr/bin/env -S pnpx ts-node
 
 import * as fs from "fs";
 import * as path from "path";
 import yargs from "yargs";
+import { randomBytes } from "crypto";
 
-const NuxtEnvironment = {
-  NUXT_SECRET: "supersecret",
+import type { NuxtEnvironment, ServerEnvironment } from "@repo/types";
+
+const SECRET = randomBytes(32).toString("base64");
+
+const NuxtVariables: NuxtEnvironment = {
+  NUXT_SECRET: SECRET,
   AUTH_ORIGIN: "http://localhost:3000",
   DATABASE_URL: "postgresql://postgres:admin@localhost:5432/the-ai-chat-db",
   EMAIL_SERVER: "smtp://localhost:1025",
@@ -13,15 +18,16 @@ const NuxtEnvironment = {
   SERVER_URL: "http://localhost:8888",
 };
 
-const ServerEnvironment = {
-  PORT: "8888",
+const ServerVariables: ServerEnvironment = {
+  PORT: 8888,
   CORS_ORIGIN: "http://localhost:3000",
-  DEEPL_KEY: "deeplKey",
-  JWT_SECRET: "supersecret",
+  DEEPL_KEY: "<deeplKey>",
+  DEEPL_API: "https://api-free.deepl.com/v2/translate",
+  JWT_SECRET: SECRET,
 };
 
 function createEnvFileForNuxtApp() {
-  const envContent = Object.entries(NuxtEnvironment)
+  const envContent = Object.entries(NuxtVariables)
     .map(([key, value]) => `${key}="${value}"`)
     .join("\n");
 
@@ -38,10 +44,10 @@ function createEnvFileForNuxtApp() {
 }
 
 function createEnvFileForServerApp(deeplKey: string) {
-  const envContent = Object.entries(ServerEnvironment)
+  const envContent = Object.entries(ServerVariables)
     .map(([key, value]) => `${key}="${value}"`)
     .join("\n")
-    .replace("deeplKey", deeplKey);
+    .replace("<deeplKey>", deeplKey);
 
   const destinationFolder = "../../apps/server";
 
